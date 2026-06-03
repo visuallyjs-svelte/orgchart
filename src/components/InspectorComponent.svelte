@@ -1,11 +1,22 @@
 <script lang="ts">
     import { InspectorComponent } from "@visuallyjs/browser-ui-svelte";
+    import officeLocations from "../office-locations";
 
     let { onSelect } = $props();
 
     let current = $state(null);
     let manager = $state(null);
     let reports = $state([]);
+
+    const timezone = $derived.by(() => {
+        if (!current) return "";
+        const locationData = officeLocations.find(loc => loc.name === current.data.location)
+        return locationData ? locationData.timezone : ""
+    })
+
+    function getTimezoneOffset(tz: string) {
+        return tz.match(/\((UTC[+-]\d+)\)/)?.[1] || tz;
+    }
 
     function getImage(person: any) {
         return `/avatars/${person.data.img}`;
@@ -38,6 +49,20 @@
         <div class="vjs-orgchart-inspector">
             <h1>{current.data.name}</h1>
             <h2>{current.data.title}</h2>
+
+            <div class="vjs-orgchart-inspector-details">
+                <div class="vjs-node-status-container">
+                    <span class="vjs-node-status {current.data.online ? 'vjs-node-status-online' : 'vjs-node-status-offline'}"></span>
+                    <span class="vjs-node-status-text">{current.data.online ? 'Online' : 'Offline'}</span>
+                </div>
+                <a href="mailto:{current.data.email}" class="vjs-node-email">{current.data.email}</a>
+                <span class="vjs-node-location">
+                    {current.data.location}
+                    {#if timezone}
+                        <span class="vjs-node-timezone"> ({getTimezoneOffset(timezone)})</span>
+                    {/if}
+                </span>
+            </div>
 
             {#if manager != null}
                 <h5>Reports to:</h5>
