@@ -5,8 +5,9 @@
     let { onSelect } = $props();
 
     let current = $state(null);
-    let manager = $state(null);
-    let reports = $state([]);
+
+	let manager = $derived.by(() => current?.getTargetEdges().map((e: any) => e.source)[0])
+	let reports = $derived.by(() => current?.getSourceEdges().map((e: any) => e.target) || [])
 
     const timezone = $derived.by(() => {
         if (!current) return "";
@@ -22,20 +23,6 @@
         return `/avatars/${person.data.img}`;
     }
 
-    // invoked by the InspectorComponent when nothing is selected. We clear all our state.
-    const renderEmptyContainer = () => {
-        current = null;
-        manager = null;
-        reports = [];
-    };
-
-    // Invoked by the InspectorComponent when something is selected. We update our state.
-    const refresh = (obj: any) => {
-        current = obj;
-        manager = obj.getTargetEdges().map((e: any) => e.source)[0];
-        reports = obj.getSourceEdges().map((e: any) => e.target);
-    };
-
     function selectPerson(person: any, e: MouseEvent) {
         e.preventDefault();
         if (onSelect) {
@@ -44,7 +31,7 @@
     }
 </script>
 
-<InspectorComponent {refresh} {renderEmptyContainer}>
+<InspectorComponent bind:current={current}>
     {#if current != null}
         <div class="vjs-orgchart-inspector">
             <h1>{current.data.name}</h1>
