@@ -6,7 +6,7 @@
         data, model, vertex, ui
     }:SvelteWrapperProps = $props()
 
-    const zoom = useZoom(ui)
+    const zoom = useZoom()
 
     function getImage() {
         return `/avatars/${data.img}`
